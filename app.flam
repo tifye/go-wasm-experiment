@@ -1,0 +1,15 @@
+--- 
+var (
+    text = "increment"
+    Meep string
+    counter = 0
+)
+
+func onClick() {
+    counter = counter + 1
+}
+---
+
+<button>{text}</button>
+<span>{counter}</span>
+
