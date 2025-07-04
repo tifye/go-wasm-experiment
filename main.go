@@ -3,7 +3,8 @@
 package main
 
 import (
-	"syscall/js"
+	"tifye/go-wasm-test/render"
+	"tifye/go-wasm-test/web"
 )
 
 func main() {
@@ -16,58 +17,48 @@ func main() {
 		deps:  make([]Dependency[[]string], 0),
 	}
 
-	renderer := NewDOMRenderer()
+	renderer := web.NewDOMRenderer()
 
 	Incrementer(renderer, IncrementerProps{
 		counter: counter,
 	})
-
 	MyAmazingList(renderer, MyAmazingListProps{
 		counter: counter,
 		items:   items,
 	})
 
-	// Next steps:
-	// 1. Look at how other frameworks update the DOM
-	// 		- Look at the ones using Div()-like functions
-	// 2. Imagine what the renderer would look like
-	// 		- How do I create elements and create/destory children? I imagine its similar to the above
-	// 3. Can I create the above program with Renderer calls and Signals?
-
 	select {}
 }
-
-type jsFunc func(this js.Value, args []js.Value) any
 
 type IncrementerProps struct {
 	counter *Signal[int64]
 }
 
-func Incrementer(renderer *DOMRenderer, props IncrementerProps) {
+func Incrementer(renderer render.Renderer, props IncrementerProps) {
 	counter := props.counter
 
-	incBtn := NewComponent("button")
-	incBtn.text = "increment"
+	incBtn := renderer.NewComponent("button")
+	incBtn.SetAttribute("innerText", "increment")
 	incBtn.SetAttribute("on:click", func() {
 		counter.Set(counter.Value() + 1)
 	})
 	renderer.Render(incBtn)
 
-	decBtn := NewComponent("button")
-	decBtn.text = "decrement"
+	decBtn := renderer.NewComponent("button")
+	decBtn.SetAttribute("innerText", "decrement")
 	decBtn.SetAttribute("on:click", func() {
 		counter.Set(counter.Value() - 1)
 	})
 	renderer.Render(decBtn)
 
-	lbl := NewComponent("span")
+	lbl := renderer.NewComponent("span")
 	lbl.SetAttribute("innerText", 0)
 	counter.Effect(func() {
-		renderer.SetAttribute(lbl, "innerText", counter.Value())
+		lbl.SetAttribute("innerText", counter.Value())
 	})
 	renderer.Render(lbl)
 
-	br := NewComponent("br")
+	br := renderer.NewComponent("br")
 	renderer.Render(br)
 }
 
@@ -76,30 +67,30 @@ type MyAmazingListProps struct {
 	items   *Signal[[]string]
 }
 
-func MyAmazingList(renderer *DOMRenderer, props MyAmazingListProps) {
+func MyAmazingList(renderer render.Renderer, props MyAmazingListProps) {
 	counter := props.counter
 	items := props.items
 
-	input := NewComponent("input")
+	input := renderer.NewComponent("input")
 	input.SetAttribute("type", "text")
 	counter.Effect(func() {
-		renderer.SetAttribute(input, "value", counter.Value())
+		input.SetAttribute("value", counter.Value())
 	})
 	renderer.Render(input)
 
-	addItemBtn := NewComponent("button")
+	addItemBtn := renderer.NewComponent("button")
 	addItemBtn.SetAttribute("innerText", "add item")
 	// todo: handle defer jsHandleAddItem.Release()
 	addItemBtn.SetAttribute("on:click", func() {
-		items.Set(append(items.Value(), input.el.Get("value").String()))
+		items.Set(append(items.Value(), input.(*web.WebComponent).Element().Get("value").String()))
 	})
 	renderer.Render(addItemBtn)
 
-	list := NewComponent("ul")
+	list := renderer.NewComponent("ul")
 	items.Effect(func() {
-		item := NewComponent("li")
+		item := renderer.NewComponent("li")
 		item.SetAttribute("innerText", items.Value()[len(items.Value())-1])
-		renderer.append(list, item)
+		renderer.Append(list, item)
 	})
 	renderer.Render(list)
 }
