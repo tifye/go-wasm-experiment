@@ -111,6 +111,27 @@ func (r *DOMRenderer) createElement(c *WebComponent) (frag, el js.Value) {
 			continue
 		}
 
+		if strings.HasPrefix(key, "bind:") {
+			valFunc, ok := val.(func(val any))
+			if !ok {
+				log.Fatal("expected func(val any) when binding")
+			}
+
+			attr := strings.TrimPrefix(key, "bind:")
+			switch attr {
+			case "value":
+				jsFunc := js.FuncOf(func(this js.Value, args []js.Value) any {
+					valFunc(el.Get("value").String())
+					return nil
+				})
+				// todo: handle release
+				el.Call("addEventListener", "input", jsFunc)
+			default:
+				panic("bind to " + attr + "not implemented")
+			}
+			continue
+		}
+
 		c.SetAttribute(key, val)
 	}
 
