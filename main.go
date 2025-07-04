@@ -15,6 +15,10 @@ func main() {
 
 	renderer := web.NewDOMRenderer()
 
+	script := renderer.NewComponent("script")
+	script.SetAttribute("src", "https://cdn.jsdelivr.net/npm/@tailwindcss/browser@4")
+	renderer.Render(script)
+
 	Incrementer(renderer, IncrementerProps{
 		counter: counter,
 	})
@@ -34,6 +38,7 @@ func Incrementer(renderer render.Renderer, props IncrementerProps) {
 
 	// <button on:click={Increment}>increment</button>
 	incBtn := renderer.NewComponent("button")
+	incBtn.SetAttribute("class", "px-2 py-1 rounded-sm active:bg-sky-600 bg-sky-500 text-white cursor-pointer")
 	incBtn.SetAttribute("innerText", "increment")
 	incBtn.SetAttribute("on:click", func() {
 		counter.Set(counter.Value() + 1)
@@ -42,6 +47,7 @@ func Incrementer(renderer render.Renderer, props IncrementerProps) {
 
 	// <button on:click={Decrement}>decrement</button>
 	decBtn := renderer.NewComponent("button")
+	decBtn.SetAttribute("class", "px-2 py-1 rounded-sm active:bg-rose-600 bg-rose-500 text-white cursor-pointer")
 	decBtn.SetAttribute("innerText", "decrement")
 	decBtn.SetAttribute("on:click", func() {
 		counter.Set(counter.Value() - 1)

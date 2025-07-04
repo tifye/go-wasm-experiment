@@ -31,10 +31,8 @@ func (c *WebComponent) SetAttribute(key string, val any) {
 		switch key {
 		case "innerText", "value":
 			c.el.Set(key, val)
-		case "type":
-			c.el.Call("setAttribute", key, val)
 		default:
-			log.Fatalf("not implemented: %s", key)
+			c.el.Call("setAttribute", key, val)
 		}
 	}
 }
