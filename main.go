@@ -113,6 +113,7 @@ func MyAmazingList(renderer render.Renderer, props MyAmazingListProps) {
 	// todo: handle defer jsHandleAddItem.Release()
 	addItemBtn.SetAttribute("on:click", func() {
 		items.Set(append(items.Value(), input.(*web.WebComponent).Element().Get("value").String()))
+		text.Set("Placeholder")
 	})
 	renderer.Render(addItemBtn)
 
