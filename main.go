@@ -12,14 +12,6 @@ func main() {
 		value: 0,
 		deps:  make([]Dependency[int64], 0),
 	}
-	items := &Signal[[]string]{
-		value: make([]string, 0),
-		deps:  make([]Dependency[[]string], 0),
-	}
-	text := &Signal[string]{
-		value: "",
-		deps:  make([]Dependency[string], 0),
-	}
 
 	renderer := web.NewDOMRenderer()
 
@@ -28,8 +20,6 @@ func main() {
 	})
 	MyAmazingList(renderer, MyAmazingListProps{
 		counter: counter,
-		items:   items,
-		text:    text,
 	})
 
 	select {}
@@ -73,14 +63,19 @@ func Incrementer(renderer render.Renderer, props IncrementerProps) {
 
 type MyAmazingListProps struct {
 	counter *Signal[int64]
-	items   *Signal[[]string]
-	text    *Signal[string]
 }
 
 func MyAmazingList(renderer render.Renderer, props MyAmazingListProps) {
 	counter := props.counter
-	items := props.items
-	text := props.text
+	// todo: Defining Signals here works but how will it get cleaned up? this is pretty much a leak?
+	items := &Signal[[]string]{
+		value: make([]string, 0),
+		deps:  make([]Dependency[[]string], 0),
+	}
+	text := &Signal[string]{
+		value: "",
+		deps:  make([]Dependency[string], 0),
+	}
 
 	// <span>{text}</span>
 	lbl := renderer.NewComponent("span")
